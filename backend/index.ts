@@ -1,9 +1,9 @@
 import express, { Request, Response } from 'express';
-import mongoose from 'mongoose';
-const  User =require('./db/db') ; 
+const mongoose=require("mongoose")
+const  User =require('./model/userModel') ; 
+const Products=require("./model/productModel")
 const bcrypt=require("bcrypt")
 const jwt=require("jsonwebtoken")
-
 const app = express();
 const port = 7000;
 const secretKey="manoj"
@@ -74,6 +74,25 @@ app.post("/login", async (req: Request, res: Response) => {
     res.status(401).json({ message: "Invalid credentials" });
   }
 });
+
+
+app.post("/upload", async (req: Request, res: Response) => {
+    const {name,description,price,quantity,image}=req.body;
+    const newProduct=await new Products({
+        name,
+        description,
+        price,
+        quantity,
+        image,
+    })
+    try {
+    const result=await newProduct.save();
+    res.status(200).send(result)
+    } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Error when adding product", error });
+  }
+})
 
 
 
