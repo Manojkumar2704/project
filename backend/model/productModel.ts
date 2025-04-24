@@ -5,7 +5,8 @@ const productModel=new mongoose.Schema({
     description:String,
     price:Number,
     quantity:Number,
-    image:String
+    image:[String],
+    created: {type:Date, default:Date.now},
 })
 const Products=mongoose.model("Products",productModel)
-export default Products;
+module.exports=Products
