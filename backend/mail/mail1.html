@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Added Alert</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    .email-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
+      background-color: #d7e7e9;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .email-header {
+      background-color: #007BFF;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .email-body {
+      padding: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #333;
+    }
+
+    .product-info {
+      margin: 20px 0;
+    }
+
+    .product-info h3 {
+      color: #007BFF;
+    }
+
+    .attachment-section {
+      margin-top: 20px;
+      background-color: #bfeaec;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 14px;
+      color: #777;
+      padding: 15px;
+      background-color: #f4f4f9;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .footer a {
+      color: #007BFF;
+      text-decoration: none;
+    }
+
+    .footer p {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="email-container">
+    <div class="email-header">
+      <h2>Product Added Alert</h2>
+    </div>
+
+    <div class="email-body">
+      <p>Hi <strong>ADMIN</strong>,</p>
+
+      <p>We are excited to inform you that a new product has been added to the system:</p>
+
+      <div class="product-info">
+        <h3>Product Name: {{productName}}</h3>
+        <h3>Product Price: {{productPrice}}</h3>
+        <p>Check out the attached images for a better view of the product.</p>
+      </div>
+
+      <div class="attachment-section">
+        <p><strong>Attached Images:</strong></p>
+        <ul>
+          <li>Image 1: {{productName}} Front View</li>
+          <li>Image 2: {{productName}} Back View</li>
+          <li>Image 3: {{productName}} Close-Up</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© 2025. All rights reserved.</p>
+    </div>
+  </div>
+
+</body>
+</html>

@@ -20,17 +20,16 @@ connectToDatabase();
 app.get('/', (req: Request, res: Response) => {
   res.send('Hello from the backend!');
 });
-console.log(path.join(__dirname, "uploads/"));
 app.use("/images", express.static(path.join(__dirname, "uploads")));
 app.use("/user",userRouter)
 app.use("/product",productRouter)
 
 
-app.post("/filter",async(req:Request,res:Response)=>{
-  const filter=req.body;
-  const result=await Products.find().sort({name:1})
-  res.send(result)
-})
+
+
+
+
+
 
 
 

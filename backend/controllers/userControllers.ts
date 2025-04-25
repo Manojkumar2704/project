@@ -4,6 +4,7 @@ const jwt=require("jsonwebtoken")
 const  User =require('../model/userModel') ; 
 import dotenv from "dotenv"
 dotenv.config()
+import {registerMail} from "../mail/mail"
 
 const registerUser=async (req: Request, res: Response) => {
     try {
@@ -19,6 +20,7 @@ const registerUser=async (req: Request, res: Response) => {
           password: hashedPassword,
         });
         const savedUser = await newUser.save();
+        registerMail(newUser.email,newUser.userName)
         res.status(201).json({
           user: {
             userName: savedUser.userName,

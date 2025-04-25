@@ -6,7 +6,11 @@ const productModel=new mongoose.Schema({
     price:Number,
     quantity:Number,
     image:[String],
-    created: {type:Date, default:Date.now},
+    created: {type:String, default:()=>{
+    return `${new Date().getDate()}-${new Date().getMonth()+1}-${new Date().getFullYear()}`;
+    }},
 })
 const Products=mongoose.model("Products",productModel)
 module.exports=Products
+
+

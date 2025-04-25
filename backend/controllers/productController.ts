@@ -1,6 +1,6 @@
 import  {Request,Response}  from "express";
 const Products =require("../model/productModel")
-
+import {sendMail} from "../mail/mail";
 
 const uploadProduct= async (req: Request, res: Response) => {
     const data=req.body;
@@ -35,6 +35,11 @@ const uploadProducts= async (req: Request, res: Response) => {
   })
   try {
   const result=await newProduct.save();
+  await sendMail({ 
+    name: newProduct.name, 
+    image:images,
+    price:newProduct.price
+  });
   res.status(200).json({message:"product added successfully",result})
   } catch (error) {
   console.log(error);
@@ -77,4 +82,26 @@ const updateProduct=async (req:Request,res:Response)=>{
     res.status(400).send(error)
   }
 }
-export {uploadProduct,uploadProducts,allproducts,deleteProduct,updateProduct}
+
+
+
+const filterproduct=async(req:Request,res:Response)=>{
+  const filter=req.body.filter
+  const isnumber = !isNaN(Number(filter));
+  const result=await Products.find({
+    $or: [
+      { name: { $regex: filter.toString(), $options: "i" } },
+      { description: { $regex: filter.toString(), $options: "i" } },
+      ...(isnumber ? [{ price: Number(filter) }] : []),
+      { created: { $regex: filter.toString(), $options: "i" } },
+    ]
+  })
+  res.send(result)
+}
+
+
+const filterbyprice=async(req:Request,res:Response)=>{
+  const result=await Products.find().sort({price:+1})
+  res.send(result)
+}
+export {uploadProduct,uploadProducts,allproducts,deleteProduct,updateProduct,filterproduct,filterbyprice}
