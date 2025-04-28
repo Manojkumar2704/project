@@ -20,6 +20,7 @@ class UserController{
                   },
                   message: "User registered successfully",
                 });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error:any) {
       console.error(error);
       if (error.message === "Email already in use") {
@@ -37,6 +38,7 @@ class LoginController{
     try {
      const token= await loginService.loginUser(userName,password)
       res.status(200).json({token})
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error:any) {
       console.log(error);
       if(error.message==="Invalid password for the user"){
