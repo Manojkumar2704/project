@@ -7,10 +7,8 @@ const port =process.env.PORT || 7000;
 import userRouter from './Routes/userRoutes';
 import productRouter from './Routes/productRouts';
 import cors from "cors"
-// const cors=require("cors")
 app.use(express.json());
 app.use(cors())
-// const path = require('path');
 import path from "path"
 
 

@@ -1,7 +1,6 @@
 import  express  from "express";
 import { UploadManyController,UploadController,DeleteProductController,UpdateProductController,FilterProductController,SortByPriceController,AllProductsController } from "../controllers/productController";
 import upload from "../middleware/upload";
-// const authmiddleware=require("../middleware/auth")
 import authmiddleware from "../middleware/auth"
 const productRouter=express.Router()
 const uploadProducts=new UploadManyController()

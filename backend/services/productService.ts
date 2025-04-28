@@ -1,4 +1,4 @@
-// const Products =require("../model/productModel")
+
 import Products from "../model/productModel"
 
 class UploadService {

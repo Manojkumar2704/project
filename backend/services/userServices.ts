@@ -1,9 +1,6 @@
 import User from "../model/userModel"
 import bcrypt from "bcrypt"
-// const User =require("../model/userModel") 
-// const bcrypt=require("bcrypt")
 import jwt from"jsonwebtoken"
-// const jwt=require("jsonwebtoken")
 import dotenv from "dotenv"
 dotenv.config()
 
