@@ -1,107 +1,112 @@
 import  {Request,Response}  from "express";
-const Products =require("../model/productModel")
 import {sendMail} from "../mail/mail";
+import { UploadService ,UploadManyService,AllProductsService,DeleteProductService,UpdateProductService,FilterProductService,SortByPrice} from "../services/productService";
 
-const uploadProduct= async (req: Request, res: Response) => {
-    const data=req.body;
-    const image=req.file?.filename
-    const newProduct=await new Products({
-        name:data.name,
-        description:data.description,
-        price:data.price,
-        quantity:data.quantity,
-        image:image,
-    })
+
+const uploadService=new UploadService()
+const uploadManyService=new UploadManyService()
+const allProductsService=new AllProductsService()
+const deleteProduct=new DeleteProductService()
+const updateProduct=new UpdateProductService()
+const filterProduct=new FilterProductService()
+const sortByPrice=new SortByPrice()
+
+class UploadController {
+  async upload(req: Request, res: Response) {
+    const data = req.body;
+    const image = req.file?.filename;
+    const imageArray = image ? [image] : [];
     try {
-    const result=await newProduct.save();
-    res.status(200).json({message:"product added successfully",result})
+      await uploadService.uploadProduct(data, imageArray);
+      res.status(200).json({ success: true, message: "Product uploaded successfully" });
     } catch (error) {
-    console.log(error);
-    res.status(500).json({ message: "Error ", error });
+      res.status(401).json({ success: false, message: "Server error when Uploading", error });
+    }
   }
 }
 
-
-
-const uploadProducts= async (req: Request, res: Response) => {
-  const data=req.body;
+class UploadManyController{
+  async uploadMany(req: Request, res: Response){
+    const data=req.body;
   const images = req.files && Array.isArray(req.files) ? req.files.map((item) => `http://localhost:7000/images/${item.filename}`) : [];
-  const newProduct=await new Products({
-      name:data.name,
-      description:data.description,
-      price:data.price,
-      quantity:data.quantity,
-      image:images
-  })
-  try {
-  const result=await newProduct.save();
-  await sendMail({ 
-    name: newProduct.name, 
+ const  product={
+    name:data.name,
     image:images,
-    price:newProduct.price
-  });
-  res.status(200).json({message:"product added successfully",result})
-  } catch (error) {
-  console.log(error);
-  res.status(500).json({ message: "Error ", error });
-}
-}
-
-
-
-const allproducts=async(req:Request,res:Response)=>{
-  try {
-    const result=await Products.find();
-  res.status(200).send(result)
-  } catch (error) {
-    res.status(404).json({error})
+    price:data.price
   }
+  try {
+    await uploadManyService.uploadMany(data,images)
+    sendMail(product)
+    res.status(200).json({success:true,message:"product added successfully"})
+  } catch (error) {
+    res.status(404).json({success:false,message:"Error when Uploading",error})
+  }
+  }
+}
+
   
-}
-
-
-
-const deleteProduct=async(req:Request,res:Response)=>{
-  try {
-  const id=req.params.id;
-  const result=await Products.findByIdAndDelete(id)
-  res.status(200).json({message:"Product deleted"})
-  } catch (error) {
-    res.status(404).send(error)
+class AllProductsController{
+  async getAll(req:Request,res:Response){
+    try {
+      const result=await allProductsService.getAll()
+    res.status(200).json({result})
+    } catch (error) {
+      res.status(400).json({success:false,message:"Error when getting",error})
+    }
   }
-  
 }
 
-const updateProduct=async (req:Request,res:Response)=>{
-  try {
-    const data=req.body
-    const id=req.params.id
-    const result=await Products.findByIdAndUpdate(id,data)
-    res.status(200).json({message:"product updated"})
-  } catch (error) {
-    res.status(400).send(error)
+class DeleteProductController{
+  async deleteProduct(req:Request,res:Response){
+    const id =req.params.id;
+    try {
+      await deleteProduct.delete(id)
+      res.status(200).json({success:true,message:"Data deleted successfully"})
+    } catch (error) {
+        res.status(400).json({success:false,message:"Server Error",error})
+    }
   }
 }
 
 
 
-const filterproduct=async(req:Request,res:Response)=>{
-  const filter=req.body.filter
-  const isnumber = !isNaN(Number(filter));
-  const result=await Products.find({
-    $or: [
-      { name: { $regex: filter.toString(), $options: "i" } },
-      { description: { $regex: filter.toString(), $options: "i" } },
-      ...(isnumber ? [{ price: Number(filter) }] : []),
-      { created: { $regex: filter.toString(), $options: "i" } },
-    ]
-  })
-  res.send(result)
+class UpdateProductController{
+  async update(req:Request,res:Response){
+    const id=req.params.id;
+    const data=req.body.data
+    try {
+      await updateProduct.update(data,id)
+      res.status(200).json({success:true,message:"Data Updated successfully"})
+    } catch (error) {
+      res.status(404).json({success:false,message:"Server error",error})
+    }
+  }
 }
 
 
-const filterbyprice=async(req:Request,res:Response)=>{
-  const result=await Products.find().sort({price:+1})
-  res.send(result)
+class FilterProductController{
+  async filter(req:Request,res:Response){
+    const data=req.body.filter
+    try {
+     const result= await filterProduct.filter(data)
+      res.status(200).json({success:true,result})
+    } catch (error) {
+      res.status(404).json({success:false,message:"Server Error",error})
+    }
+  }
 }
-export {uploadProduct,uploadProducts,allproducts,deleteProduct,updateProduct,filterproduct,filterbyprice}
+
+
+class SortByPriceController{
+  async sort(req:Request,res:Response){
+    try {
+     const result= await sortByPrice.filterByPrice()
+      res.status(200).json({success:true,result})
+    } catch (error) {
+      res.status(404).json({success:false,message:"Server Error",error})    }
+  }
+}
+
+
+
+export {UploadController,UploadManyController,AllProductsController,DeleteProductController,UpdateProductController,FilterProductController,SortByPriceController}

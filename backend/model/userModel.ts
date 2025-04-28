@@ -5,6 +5,10 @@ const userSchema=new mongoose.Schema({
     email: String,
     password: String})
 
-
-const User = mongoose.model('User', userSchema);
-module.exports=User;
+interface user extends Document{
+    userName:string,
+    email:string,
+    password:string
+}
+const User = mongoose.model<user>('User', userSchema);
+export default User

@@ -1,63 +1,54 @@
 import { Request, Response } from 'express';
-const bcrypt=require("bcrypt")
-const jwt=require("jsonwebtoken")
-const  User =require('../model/userModel') ; 
-import dotenv from "dotenv"
-dotenv.config()
-import {registerMail} from "../mail/mail"
 
-const registerUser=async (req: Request, res: Response) => {
+import { addEmailJob } from '../mail/emailJob';
+import { cronMail } from '../mail/mail';
+import {UserService,LoginService} from '../services/userServices';
+const userService=new UserService()
+const loginService=new LoginService()
+
+class UserController{
+  async register(req: Request, res: Response): Promise<void>{
+    const { userName, email, password } = req.body;
     try {
-      const { userName, email, password } = req.body;
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-         res.status(400).json({ message: "Email already in use" });
-      }else{
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({
-          userName,
-          email,
-          password: hashedPassword,
-        });
-        const savedUser = await newUser.save();
-        registerMail(newUser.email,newUser.userName)
+     await userService.registerUser(userName,email,password)
+     cronMail(email)
+     await addEmailJob(email)
         res.status(201).json({
-          user: {
-            userName: savedUser.userName,
-            email: savedUser.email,
-          },
-          message: "User registered successfully",
-        });
-      }
-      
-     
-  
-    } catch (error) {
-      console.error("Registration Error:", error);
-       res.status(400).json({ message: "Error registering user", error });
-    }
-  };
-  
-  
-  const loginUser= async (req: Request, res: Response) => {
-    const { userName, password } = req.body;
-  
-    const user =await User.findOne({userName});
-    if (user) {
-      const ispasswordValid = await bcrypt.compare(password, user.password);
-      if (ispasswordValid) {
-        const token = await jwt.sign( {id:user._id} , process.env.secretkey, {
-          expiresIn: "1h",
-        });
-        res.json({ token });
+                  user: {
+                    userName:userName,
+                    email:email,
+                  },
+                  message: "User registered successfully",
+                });
+    } catch (error:any) {
+      console.error(error);
+      if (error.message === "Email already in use") {
+         res.status(409).json({ message: error.message });
       } else {
-        console.log("invalid password for the user", userName);
-        res.status(400).json({ message: "Invalid credentials" });
+         res.status(500).json({ message: "Server error, please try again later" });
       }
-    } else {
-      console.log("user not found : ", userName);
-      res.status(401).json({ message: "Invalid credentials" });
     }
-  };
+  }
+}
 
-  export {registerUser,loginUser}
+class LoginController{
+  async login(req:Request,res:Response){
+    const{userName,password}=req.body;
+    try {
+     const token= await loginService.loginUser(userName,password)
+      res.status(200).json({token})
+    } catch (error:any) {
+      console.log(error);
+      if(error.message==="Invalid password for the user"){
+        res.status(409).json({ message: error.message });
+      }if(error.message=="User not found"){
+        res.status(409).json({ message: error.message });
+      }else{
+        res.status(500).json({ message: "Server error, please try again later" });
+      }
+    }
+  }
+}
+
+  
+  export {UserController,LoginController}

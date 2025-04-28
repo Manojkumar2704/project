@@ -10,7 +10,18 @@ const productModel=new mongoose.Schema({
     return `${new Date().getDate()}-${new Date().getMonth()+1}-${new Date().getFullYear()}`;
     }},
 })
-const Products=mongoose.model("Products",productModel)
-module.exports=Products
+
+
+interface products extends Document{
+    name:string,
+    description:string,
+    price:number,
+    quantity:number,
+    image:[string],
+    created:string
+}
+
+const Products=mongoose.model<products>("Products",productModel)
+export default Products
 
 
