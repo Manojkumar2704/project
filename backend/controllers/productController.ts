@@ -58,9 +58,9 @@ class AllProductsController{
   async getAll(req:Request,res:Response){
     try {
       const result=await allProductsService.getAll()
-    res.status(200).json({result})
+    res.status(201).json({result})
     } catch (error) {
-      res.status(400).json({success:false,message:"Error when getting",error})
+      res.json({success:false,message:"Error when getting",error})
     }
   }
 }

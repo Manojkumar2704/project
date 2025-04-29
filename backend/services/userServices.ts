@@ -24,8 +24,8 @@ dotenv.config()
 }
 
 class LoginService {
-  async loginUser(userName: string, password: string) {
-    const user = await User.findOne({ userName });
+  async loginUser(email: string, password: string) {
+    const user = await User.findOne({ email });
     if (user) {
       const isPasswordValid = await bcrypt.compare(String(password), String(user.password));
       if (isPasswordValid) {
@@ -34,11 +34,11 @@ class LoginService {
         });
         return token;
       } else {
-        console.log("Invalid password for the user", userName);
+        console.log("Invalid password for the user", email);
         throw new Error("Invalid password for the user");
       }
     } else {
-      console.log("User not found:", userName);
+      console.log("User not found:", email);
       throw new Error("User not found");
     }
   }

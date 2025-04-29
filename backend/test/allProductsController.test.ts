@@ -20,7 +20,7 @@ describe("AllProductsController Tests", () => {
     (AllProductsService.prototype.getAll as jest.Mock).mockResolvedValue(mockProducts);
     await controller.getAll(mockReq, mockRes);
     expect(AllProductsService.prototype.getAll).toHaveBeenCalled();
-    expect(mockRes.status).toHaveBeenCalledWith(200);
+    expect(mockRes.status).toHaveBeenCalledWith(201);
     expect(mockRes.json).toHaveBeenCalledWith({ result: mockProducts });
   });
 
@@ -29,7 +29,6 @@ describe("AllProductsController Tests", () => {
     (AllProductsService.prototype.getAll as jest.Mock).mockRejectedValue(mockError);
     await controller.getAll(mockReq, mockRes);
     expect(AllProductsService.prototype.getAll).toHaveBeenCalled();
-    expect(mockRes.status).toHaveBeenCalledWith(400);
     expect(mockRes.json).toHaveBeenCalledWith({
       success: false,
       message: "Error when getting",

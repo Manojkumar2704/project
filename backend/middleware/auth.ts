@@ -3,10 +3,17 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-const authmiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const token = req.headers.token;
+const authMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const authHeader = req.headers.authorization;
 
-  if (!token || typeof token !== "string") {
+  if (!authHeader) {
+    res.status(401).json({ message: "You don't have a valid token" });
+    return;
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  if (!token) {
     res.status(401).json({ message: "You don't have a valid token" });
     return;
   }
@@ -18,11 +25,15 @@ const authmiddleware = async (req: Request, res: Response, next: NextFunction): 
       return;
     }
 
-    jwt.verify(token, secretKey);
-    next();
+    jwt.verify(token, secretKey, (err) => {
+      if (err) {
+        return res.status(401).json({ message: "Invalid token", error: err.message });
+      }
+      next();
+    });
   } catch (error) {
-    res.status(401).json({ message: "Invalid token", error });
+    res.status(401).json({ message: "Invalid token", error: error instanceof Error ? error.message : error });
   }
 };
 
-export default authmiddleware;
+export default authMiddleware;

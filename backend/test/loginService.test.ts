@@ -16,21 +16,21 @@ describe('LoginService - loginUser', () => {
   });
 
   it('should return token on successful login', async () => {
-    const mockUser = { _id: '123', userName: 'test', password: 'hashedPass' };
+    const mockUser = { _id: '123', email: 'test', password: 'hashedPass' };
     (User.findOne as jest.Mock).mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(true);
     (jwt.sign as jest.Mock).mockReturnValue('mockToken');
 
     const result = await loginService.loginUser('test', 'password123');
 
-    expect(User.findOne).toHaveBeenCalledWith({ userName: 'test' });
+    expect(User.findOne).toHaveBeenCalledWith({ email: 'test' });
     expect(bcrypt.compare).toHaveBeenCalledWith('password123', 'hashedPass');
     expect(jwt.sign).toHaveBeenCalledWith({ id: '123' }, expect.any(String), { expiresIn: '1h' });
     expect(result).toBe('mockToken');
   });
 
   it('should throw error on invalid password', async () => {
-    const mockUser = { userName: 'test', password: 'hashedPass' };
+    const mockUser = { email: 'test', password: 'hashedPass' };
     (User.findOne as jest.Mock).mockResolvedValue(mockUser);
     (bcrypt.compare as jest.Mock).mockResolvedValue(false);
 

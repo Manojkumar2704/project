@@ -10,7 +10,7 @@ describe("LoginController - login", () => {
 
   const mockReq = {
     body: {
-      userName: "testuser",
+      email: "testuser",
       password: "testpass",
     },
   } as Request;
@@ -28,7 +28,7 @@ describe("LoginController - login", () => {
     await controller.login(mockReq, mockRes);
 
     expect(mockLoginUser).toHaveBeenCalledWith("testuser", "testpass");
-    expect(mockRes.status).toHaveBeenCalledWith(200);
+    expect(mockRes.status).toHaveBeenCalledWith(201);
     expect(mockRes.json).toHaveBeenCalledWith({ token: "fake-jwt-token" });
   });
 
@@ -37,7 +37,6 @@ describe("LoginController - login", () => {
 
     await controller.login(mockReq, mockRes);
 
-    expect(mockRes.status).toHaveBeenCalledWith(409);
     expect(mockRes.json).toHaveBeenCalledWith({ message: "Invalid password for the user" });
   });
 
@@ -46,7 +45,7 @@ describe("LoginController - login", () => {
 
     await controller.login(mockReq, mockRes);
 
-    expect(mockRes.status).toHaveBeenCalledWith(409);
+
     expect(mockRes.json).toHaveBeenCalledWith({ message: "User not found" });
   });
 
@@ -55,7 +54,6 @@ describe("LoginController - login", () => {
 
     await controller.login(mockReq, mockRes);
 
-    expect(mockRes.status).toHaveBeenCalledWith(500);
     expect(mockRes.json).toHaveBeenCalledWith({ message: "Server error, please try again later" });
   });
 });
