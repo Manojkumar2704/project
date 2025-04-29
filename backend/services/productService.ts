@@ -54,7 +54,7 @@ class UpdateProductService{
 
 
 class FilterProductService{
-    async filter(filter:object){
+    async filter(filter:string){
         const isnumber = !isNaN(Number(filter));
         const result=await Products.find({
           $or: [

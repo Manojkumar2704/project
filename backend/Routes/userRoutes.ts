@@ -5,7 +5,7 @@ const userController=new UserController();
 const loginController=new LoginController();
 
 
-userRouter.post("/register", userController.register);
-userRouter.post("/login", loginController.login);
+userRouter.post("/register", (req, res) => userController.register(req, res));
+userRouter.post("/login",(req,res)=> loginController.login(req,res));
 
 export default userRouter;

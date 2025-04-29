@@ -4,11 +4,11 @@ import { UploadService ,UploadManyService,AllProductsService,DeleteProductServic
 
 
 const uploadService=new UploadService()
-const uploadManyService=new UploadManyService()
+// const uploadManyService=new UploadManyService()
 const allProductsService=new AllProductsService()
 const deleteProduct=new DeleteProductService()
 const updateProduct=new UpdateProductService()
-const filterProduct=new FilterProductService()
+// const filterProduct=new FilterProductService()
 const sortByPrice=new SortByPrice()
 
 class UploadController {
@@ -25,24 +25,33 @@ class UploadController {
   }
 }
 
-class UploadManyController{
-  async uploadMany(req: Request, res: Response){
-    const data=req.body;
-  const images = req.files && Array.isArray(req.files) ? req.files.map((item) => `http://localhost:7000/images/${item.filename}`) : [];
- const  product={
-    name:data.name,
-    image:images,
-    price:data.price
-  }
-  try {
-    await uploadManyService.uploadMany(data,images)
-    sendMail(product)
-    res.status(200).json({success:true,message:"product added successfully"})
-  } catch (error) {
-    res.status(404).json({success:false,message:"Error when Uploading",error})
-  }
+
+
+ class UploadManyController {
+  constructor(private service = new UploadManyService()) {}
+
+  async uploadMany(req: Request, res: Response) {
+    const data = req.body;
+    const images = req.files && Array.isArray(req.files)
+      ? req.files.map((item) => `http://localhost:7000/images/${item.filename}`)
+      : [];
+
+    const product = {
+      name: data.name,
+      image: images,
+      price: data.price,
+    };
+
+    try {
+      await this.service.uploadMany(data, images);
+      sendMail(product);
+      res.status(200).json({ success: true, message: "product added successfully" });
+    } catch (error) {
+      res.status(404).json({ success: false, message: "Error when Uploading", error });
+    }
   }
 }
+
 
   
 class AllProductsController{
@@ -84,14 +93,21 @@ class UpdateProductController{
 }
 
 
-class FilterProductController{
-  async filter(req:Request,res:Response){
-    const data=req.body.filter
+class FilterProductController {
+  constructor(private filterProductService: FilterProductService) {}
+
+  async filter(req: Request, res: Response): Promise<void> {
+    const data = req.body.filter;
+
     try {
-     const result= await filterProduct.filter(data)
-      res.status(200).json({success:true,result})
+      const result = await this.filterProductService.filter(data);
+      res.status(200).json({ success: true, result });
     } catch (error) {
-      res.status(404).json({success:false,message:"Server Error",error})
+      res.status(404).json({
+        success: false,
+        message: 'Server Error',
+        error,
+      });
     }
   }
 }
