@@ -94,9 +94,13 @@ class DeleteProductController{
 
 class UpdateProductController {
   update = async (req: Request, res: Response): Promise<void> => {
-    const id = req.params.id;
+    const data = req.body;
+    const id=req.params.id;
+    const files = req.files as Express.Multer.File[];
+  
+    const images = files?.map(file => `http://localhost:7000/images/${file.filename}`);
     try {
-       await updateProduct.update(req.body, id);
+       await updateProduct.update(data,images, id);
       res.status(200).json({ success: true, message: "Data updated successfully" });
     } catch (error) {
       res.status(500).json({ success: false, message: "Server error", error });
@@ -115,16 +119,17 @@ class FilterProductController {
   async filter(req: Request, res: Response): Promise<void> {
     const data = req.body.filter
 
-    try {
+    // try {
       const result = await filterProduct.filter(data);
       res.status(200).json({ success: true, result });
-    } catch (error) {
-      res.status(404).json({
-        success: false,
-        message: 'Server Error',
-        error,
-      });
-    }
+    // } catch (error) {
+
+      // res.status(404).json({
+      //   success: false,
+      //   message: 'Server Error',
+      //   error,
+      // });
+    // }
   }
 }
 

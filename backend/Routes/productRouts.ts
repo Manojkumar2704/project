@@ -27,7 +27,7 @@ productRouter.post("/upload", upload.single("image"), authmiddleware, uploadProd
 productRouter.post("/uploads", upload.array("images", 10), authmiddleware, (req, res) => uploadProducts.uploadMany(req, res));
 productRouter.get("/allproducts", authmiddleware, allproducts.getAll);
 productRouter.delete("/deleteproduct/:id", authmiddleware, deleteProduct.deleteProduct);
-productRouter.put("/updateproduct/:id", authmiddleware, updateProductController.update);
+productRouter.put("/updateproduct/:id",upload.array("images",8), authmiddleware, updateProductController.update);
 productRouter.post("/filter", authmiddleware, filterproduct.filter);
 productRouter.post("/sort", authmiddleware, filterbyprice.sort);
 productRouter.get("/getone/:id",authmiddleware,getOneProduct.getOne)

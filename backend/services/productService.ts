@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import Products from "../model/productModel"
 
@@ -52,30 +53,51 @@ class DeleteProductService{
 }
 
 class UpdateProductService{
-    async update(data:object,id:string){
-        const result=await Products.findByIdAndUpdate(id,data)
-        return result;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async update(data:any,images:any,id:string){
+        const updateFields: any = {
+            $set: {
+              name:data.name,
+              description:data.description,
+              price: parseFloat(data.price),
+              quantity: parseInt(data.quantity),
+            },
+          };
+          if (images && images.length > 0) {
+            updateFields["$push"] = { image: { $each: images } };
+          }
+        
+          return await Products.updateOne({ _id:id}, updateFields);
     }
 }
 
-
+function escapeRegex(input: string) {
+    if (typeof input !== "string") return "";
+    return input.replace(/[-[\]/{}()*+?.\\^$|]/g, '\\$&');
+  }
 class FilterProductService {
     async filter(filter: string) {
-      const isNumber = !isNaN(Number(filter));
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const conditions: any[] = [
-        { name: { $regex: filter, $options: "i" } },
-        { description: { $regex: filter, $options: "i" } },
-      ];
-      if (isNumber) {
-        conditions.push({ price: Number(filter) });
-        conditions.push({ quantity: Number(filter) });
-      }
-      // Only include created filter if you store it as a string or formatted date
-      conditions.push({ createdAt: { $regex: filter, $options: "i" } });
-  
-      const result = await Products.find({ $or: conditions });
-      return result;
+        try {
+            const safeFilter = escapeRegex(filter);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const conditions: any[] = [
+              { name: { $regex: safeFilter, $options: "i" } },
+              { description: { $regex: safeFilter, $options: "i" } },
+              {created:{$regex:safeFilter}}
+            ];
+          
+            const isNumber = !isNaN(Number(filter));
+            if (isNumber) {
+              conditions.push({ price: Number(filter) });
+              conditions.push({ quantity: Number(filter) });
+            }
+
+          
+            return await Products.find({ $or: conditions });
+          } catch (err) {
+            console.error("Invalid filter input:", filter, err);
+            throw new Error("Invalid filter input.");
+          }
     }
   }
   
