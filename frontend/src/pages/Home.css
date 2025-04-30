@@ -13,7 +13,7 @@
     border-radius: 8px;
     overflow: hidden;
   }
-  div {
+  .wrapper {
     padding: 2rem;
     font-family: Arial, sans-serif;
     background-color: #f4f6f8;
@@ -62,9 +62,14 @@
     transition: all 0.3s ease;
   }
   
-  button {
+  .button {
     background-color: #2196f3;
     color: white;
   }
   
-  
+  .add-button{
+    top: 22%;
+    right: 10%;
+    position: absolute;
+    float: right;
+  }

@@ -1,24 +1,26 @@
-import React from 'react'
-import { BrowserRouter,Routes,Route } from 'react-router-dom'
-import Registration from './pages/Registration'
-import Login from './pages/Login'
-import Home from './pages/Home'
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Registration from "./pages/Registration";
+import Login from "./pages/Login";
+import Home from "./pages/Home";
+import Upload from "./pages/Upload";
+import Update from "./pages/Update";
+
 
 const App = () => {
   return (
-    <div>
-      <BrowserRouter>
+    <BrowserRouter>
+     
       <Routes>
-      <Route path='/home' element={<Home/>}></Route>
-        <Route path='/' element={<Registration/>}></Route>
-        <Route path='/login' element={<Login/>}></Route>
+        
+        <Route path="/" element={<Registration />}></Route>
+        <Route path="/login" element={<Login />}></Route>
+        <Route path="/upload" element={<Upload/>}></Route>
+        <Route path="/home" element={<Home />}></Route>
+        <Route path="/update/:id" element={<Update/>}></Route>
       </Routes>
-      </BrowserRouter>
+    </BrowserRouter>
+  );
+};
 
-
-      
-    </div>
-  )
-}
-
-export default App
+export default App;

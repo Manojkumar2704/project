@@ -1,6 +1,7 @@
 import  {Request,Response}  from "express";
 import {sendMail} from "../mail/mail";
-import { UploadService ,UploadManyService,AllProductsService,DeleteProductService,UpdateProductService,FilterProductService,SortByPrice} from "../services/productService";
+import { UploadService,getOneProductService ,UploadManyService,AllProductsService,DeleteProductService,UpdateProductService,FilterProductService,SortByPrice} from "../services/productService";
+
 
 
 const uploadService=new UploadService()
@@ -8,7 +9,8 @@ const uploadService=new UploadService()
 const allProductsService=new AllProductsService()
 const deleteProduct=new DeleteProductService()
 const updateProduct=new UpdateProductService()
-// const filterProduct=new FilterProductService()
+const filterProduct=new FilterProductService()
+const getoneProduct=new getOneProductService()
 const sortByPrice=new SortByPrice()
 
 class UploadController {
@@ -64,6 +66,17 @@ class AllProductsController{
     }
   }
 }
+class getOneProductController{
+  async getOne(req:Request,res:Response){
+    const id=req.params.id
+    try {
+      const result=await getoneProduct.getOne(id)
+      res.send(result)
+    } catch (error) {
+      res.json({success:false,message:"Error when getting",error})
+    }
+  }
+}
 
 class DeleteProductController{
   async deleteProduct(req:Request,res:Response){
@@ -79,28 +92,31 @@ class DeleteProductController{
 
 
 
-class UpdateProductController{
-  async update(req:Request,res:Response){
-    const id=req.params.id;
-    const data=req.body.data
+class UpdateProductController {
+  update = async (req: Request, res: Response): Promise<void> => {
+    const id = req.params.id;
     try {
-      await updateProduct.update(data,id)
-      res.status(200).json({success:true,message:"Data Updated successfully"})
+       await updateProduct.update(req.body, id);
+      res.status(200).json({ success: true, message: "Data updated successfully" });
     } catch (error) {
-      res.status(404).json({success:false,message:"Server error",error})
+      res.status(500).json({ success: false, message: "Server error", error });
     }
-  }
+  };
 }
+
+export const updateProductController = new UpdateProductController();
+
+
 
 
 class FilterProductController {
-  constructor(private filterProductService: FilterProductService) {}
+  // constructor(private filterProductService: FilterProductService) {}
 
   async filter(req: Request, res: Response): Promise<void> {
-    const data = req.body.filter;
+    const data = req.body.filter
 
     try {
-      const result = await this.filterProductService.filter(data);
+      const result = await filterProduct.filter(data);
       res.status(200).json({ success: true, result });
     } catch (error) {
       res.status(404).json({
@@ -125,4 +141,4 @@ class SortByPriceController{
 
 
 
-export {UploadController,UploadManyController,AllProductsController,DeleteProductController,UpdateProductController,FilterProductController,SortByPriceController}
+export {UploadController,UploadManyController,AllProductsController,getOneProductController,DeleteProductController,FilterProductController,SortByPriceController}

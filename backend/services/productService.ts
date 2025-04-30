@@ -36,6 +36,12 @@ class AllProductsService{
         return result;
     }
 }
+class getOneProductService{
+    async getOne(id:string){
+        const result=await Products.findById(id)
+        return result
+    }
+}
 
 
 class DeleteProductService{
@@ -53,20 +59,26 @@ class UpdateProductService{
 }
 
 
-class FilterProductService{
-    async filter(filter:string){
-        const isnumber = !isNaN(Number(filter));
-        const result=await Products.find({
-          $or: [
-            { name: { $regex: filter.toString(), $options: "i" } },
-            { description: { $regex: filter.toString(), $options: "i" } },
-            ...(isnumber ? [{ price: Number(filter) }] : []),
-            { created: { $regex: filter.toString(), $options: "i" } },
-          ]
-        })
-        return result
+class FilterProductService {
+    async filter(filter: string) {
+      const isNumber = !isNaN(Number(filter));
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const conditions: any[] = [
+        { name: { $regex: filter, $options: "i" } },
+        { description: { $regex: filter, $options: "i" } },
+      ];
+      if (isNumber) {
+        conditions.push({ price: Number(filter) });
+        conditions.push({ quantity: Number(filter) });
+      }
+      // Only include created filter if you store it as a string or formatted date
+      conditions.push({ createdAt: { $regex: filter, $options: "i" } });
+  
+      const result = await Products.find({ $or: conditions });
+      return result;
     }
-}
+  }
+  
 
 
 class SortByPrice{
@@ -77,4 +89,4 @@ class SortByPrice{
     
 }
 
-export {UploadService,UploadManyService,AllProductsService,DeleteProductService,UpdateProductService,FilterProductService,SortByPrice}
+export {UploadService,UploadManyService,AllProductsService,getOneProductService,DeleteProductService,UpdateProductService,FilterProductService,SortByPrice}
