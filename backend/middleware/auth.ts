@@ -28,6 +28,7 @@ const authMiddleware = async (req: Request, res: Response, next: NextFunction): 
     jwt.verify(token, secretKey, (err) => {
       if (err) {
         return res.status(401).json({ message: "Invalid token", error: err.message });
+        
       }
       next();
     });

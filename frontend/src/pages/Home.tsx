@@ -27,7 +27,10 @@ const Home = () => {
   };
 
   if (loading) return <h1>Loading...</h1>;
-  if (error) return <p>Error: {error}</p>;
+  if (error){
+    window.location.href="/login"
+     return <p>Error: {error}</p>
+    }
 
   return (
     <>

@@ -1,11 +1,11 @@
 import React from "react";
-import { render,screen,waitFor,fireEvent } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import axios from "axios";
+import { render,screen} from "@testing-library/react";
+// import userEvent from "@testing-library/user-event";
+// import axios from "axios";
 import Registration from "../pages/Registration";
 
 jest.mock("axios")
-const mockedAxios=axios as jest.Mocked<typeof axios>
+// const mockedAxios=axios as jest.Mocked<typeof axios>
 
 describe ("register component",async()=>{
     beforeEach(()=>{
@@ -20,3 +20,4 @@ describe ("register component",async()=>{
         expect(screen.getByLabelText(/Password/i)).toBeInTheDocument()
 })
 })
+ 

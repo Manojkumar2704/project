@@ -48,6 +48,7 @@ const Registration: React.FC = () => {
     e.preventDefault();
     if (!validate()) return;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dispatch(registerUser(formData)).then((res: any) => {
       if (res.meta.requestStatus === 'fulfilled') {
         alert('User registered successfully');

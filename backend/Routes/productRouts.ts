@@ -25,7 +25,12 @@ const getOneProduct=new getOneProductController()
 import { deleteProductImage } from "../controllers/productController";
 
 productRouter.post("/upload", upload.single("image"), authmiddleware, uploadProduct.upload);
-productRouter.post("/uploads", upload.array("images", 10), authmiddleware, (req, res) => uploadProducts.uploadMany(req, res));
+productRouter.post(
+  "/uploads",
+  authmiddleware,
+  upload.array("images", 10),
+  uploadProducts.uploadMany.bind(uploadProducts)
+);
 productRouter.get("/allproducts", authmiddleware, allproducts.getAll);
 productRouter.delete("/deleteproduct/:id", authmiddleware, deleteProduct.deleteProduct);
 productRouter.put("/updateproduct/:id",upload.array("images",8), authmiddleware, updateProductController.update);

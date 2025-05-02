@@ -55,6 +55,7 @@ const Login: React.FC = () => {
       } else {
         setError(response.data.message || 'Login failed');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       setError(error.response?.data?.message || 'Invalid credentials');
     }

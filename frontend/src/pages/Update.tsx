@@ -74,8 +74,10 @@ const Update = () => {
       await dispatch(updateProduct({ id, data: form, files: newImages })).unwrap();
       alert("Product updated successfully");
       navigate("/home");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       alert("Update failed: " + error.message);
+      window.location.href="/login"
     }
   };
 

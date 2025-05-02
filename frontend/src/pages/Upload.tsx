@@ -35,26 +35,31 @@ const Upload = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (
-      data.name &&
-      data.description &&
-      data.price &&
-      data.quantity &&
-      images.length > 0
-    ) {
-      const formattedData = {
-        ...data,
-        price: data.price.toString(),
-        quantity: data.quantity.toString(),
-      };
-
-      dispatch(addProduct({ data: formattedData, files: images }));
-      alert("product added")
-      window.location.href="/home"
-    } else {
-      alert("Please fill all required fields and select at least one image.");
+    try {
+      if (
+        data.name &&
+        data.description &&
+        data.price &&
+        data.quantity &&
+        images.length > 0
+      ) {
+        const formattedData = {
+          ...data,
+          price: data.price.toString(),
+          quantity: data.quantity.toString(),
+        };
+        dispatch(addProduct({ data: formattedData, files: images }));
+        window.location.href="/home"
+      } else {
+        alert("Please fill all required fields and select at least one image.");
+      }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error:any) {
+      alert(error)
+      window.location.href="/login"
     }
+
+   
   };
 
   return (
