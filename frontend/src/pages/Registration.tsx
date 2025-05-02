@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import "./Registration.css"
+import React, { useState, useEffect } from 'react';
+import "./Registration.css";
 import {
   Box,
   Button,
@@ -8,7 +8,8 @@ import {
   Typography,
   Paper,
 } from '@mui/material';
-import axios from 'axios';
+import { useAppDispatch,useAppSelector } from '../store/hooks';
+import { registerUser } from '../store/slice/authSlice';
 
 type FormData = {
   userName: string;
@@ -25,9 +26,10 @@ const Registration: React.FC = () => {
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const dispatch = useAppDispatch();
+  const { error } = useAppSelector((state) => state.auth);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -35,35 +37,31 @@ const Registration: React.FC = () => {
     const newErrors: Partial<FormData> = {};
     if (!formData.userName) newErrors.userName = 'Name is required';
     if (!formData.email) newErrors.email = 'Email is required';
-    if (!/\S+@\S+\.\S+/.test(formData.email))
-      newErrors.email = 'Email is invalid';
+    if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid';
     if (!formData.password || formData.password.length < 6)
       newErrors.password = 'Password must be at least 6 characters';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const register=async(data:any)=>{
-    const result=await axios.post("http://localhost:7000/user/register",data)
-    if(result.status===201){
-        alert(result.data.message);
-        setFormData({
-            userName: '',
-            email: '',
-            password: '',
-        })
-        window.location.href="/login"
-    }else {
-        alert(result.data.message)
-    }
-  }
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
-    console.log('Registered:', formData);
-     register(formData)
+
+    dispatch(registerUser(formData)).then((res: any) => {
+      if (res.meta.requestStatus === 'fulfilled') {
+        alert('User registered successfully');
+        setFormData({ userName: '', email: '', password: '' });
+        window.location.href = '/login';
+      } else {
+        // this will be handled by the useEffect below
+      }
+    });
   };
+
+  useEffect(() => {
+    if (error) alert(error);
+  }, [error]);
 
   return (
     <Container maxWidth="sm">
@@ -73,52 +71,42 @@ const Registration: React.FC = () => {
         </Typography>
         <Box component="form" onSubmit={handleSubmit} noValidate>
           <div>
-            <div >
-              <TextField
-                fullWidth
-                label="userName"
-                name="userName"
-                value={formData.userName}
-                onChange={handleChange}
-                error={!!errors.userName}
-                helperText={errors.userName}
-              />
-            </div>
-            <br/>
-            <div >
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                error={!!errors.email}
-                helperText={errors.email}
-              />
-            </div>
-            <br/>
-
-            <div>
-              <TextField
-                fullWidth
-                label="Password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                error={!!errors.password}
-                helperText={errors.password}
-              />
-            </div>
-            <br/>
-
-            <div>
-              <Button variant="contained" fullWidth type="submit">
-                Register
-              </Button>
-            </div>
-            <p>Already have an Accoun ? <a href='/login'>Login</a></p>
+            <TextField
+              fullWidth
+              label="User Name"
+              name="userName"
+              value={formData.userName}
+              onChange={handleChange}
+              error={!!errors.userName}
+              helperText={errors.userName}
+            />
+            <br /><br />
+            <TextField
+              fullWidth
+              label="Email"
+              name="email"
+              type="email"
+              value={formData.email}
+              onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email}
+            />
+            <br /><br />
+            <TextField
+              fullWidth
+              label="Password"
+              name="password"
+              type="password"
+              value={formData.password}
+              onChange={handleChange}
+              error={!!errors.password}
+              helperText={errors.password}
+            />
+            <br /><br />
+            <Button variant="contained" fullWidth type="submit">
+              Register
+            </Button>
+            <p>Already have an Account? <a href='/login'>Login</a></p>
           </div>
         </Box>
       </Paper>
@@ -127,4 +115,3 @@ const Registration: React.FC = () => {
 };
 
 export default Registration;
-

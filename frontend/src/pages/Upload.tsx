@@ -6,145 +6,134 @@ import {
   TextField,
   Typography,
   Paper,
+  CircularProgress,
 } from "@mui/material";
-import "./Upload.css"
-import axios from "axios";
+import "./Upload.css";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { addProduct } from "../store/slice/productSlice";
 
 const Upload = () => {
-  type FormData = {
-    name: string;
-    description: string;
-    price: number;
-    quantity: number;
-  };
-  const [data, setData] = useState<FormData>({
+  const dispatch = useAppDispatch();
+  const { loading, error } = useAppSelector((state) => state.products);
+
+  const [data, setData] = useState({
     name: "",
     description: "",
-    price: 0,
-    quantity: 0,
+    price: "",
+    quantity: "",
   });
+
   const [images, setImages] = useState<File[]>([]);
 
-  const formData = new FormData();
-  formData.append("name", data.name);
-  formData.append("description", data.description);
-  formData.append("price", data.price.toString());
-  formData.append("quantity", data.quantity.toString());
-  images.forEach((file) => {
-    formData.append("images", file);
-  });
-
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setData({ ...data, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  const token = localStorage.getItem("token");
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-  const uploadProduct=async()=>{
-       const result= await axios.post("http://localhost:7000/product/uploads",formData,{headers})
-        if(result.status===200){
-            alert(result.data.message)
-            window.location.href="/home"
-        }else{
-            alert(result.data.message)
-        }
-    }
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if(data.name!==""&&data.description!==""&&data.price!==0&&data.quantity!==0){
-        uploadProduct()
-    }else{
-        alert("fill all the required fields")
+
+    if (
+      data.name &&
+      data.description &&
+      data.price &&
+      data.quantity &&
+      images.length > 0
+    ) {
+      const formattedData = {
+        ...data,
+        price: data.price.toString(),
+        quantity: data.quantity.toString(),
+      };
+
+      dispatch(addProduct({ data: formattedData, files: images }));
+      alert("product added")
+      window.location.href="/home"
+    } else {
+      alert("Please fill all required fields and select at least one image.");
     }
-   
   };
+
   return (
-    <div>
-      <Container maxWidth="sm">
-        <Paper elevation={3} sx={{ padding: 4, marginTop: 8 }}>
-          <Typography variant="h5" gutterBottom>
-            Upload Product
-          </Typography>
-          <Box component="form" onSubmit={handleSubmit} noValidate>
-            <div>
-              <div>
-                <TextField
-                required
-                  fullWidth
-                  id="standard-basic"
-                  label="Product name"
-                  variant="standard"
-                  onChange={handleChange}
-                  name="name"
-                />
-              </div>
-              <br />
-              <div>
-                <TextField
-                required
-                  fullWidth
-                  id="standard-basic"
-                  label="Product Description"
-                  variant="standard"
-                  onChange={handleChange}
-                  name="description"
-                />
-              </div>
-              <br />
-              <div>
-                <TextField
-                required
-                  fullWidth
-                  id="standard-basic"
-                  label="Product Price"
-                  variant="standard"
-                  onChange={handleChange}
-                  name="price"
-                />
-              </div>
-              <br />
-              <div>
-                <TextField
-                required
-                  fullWidth
-                  id="standard-basic"
-                  label="Product Quantity"
-                  variant="standard"
-                  onChange={handleChange}
-                  name="quantity"
-                />
-              </div>
-              <br />
-              <div>
-                <label className="image-label">Prduct image</label>
-                <br/>
-                <input className="image-input"
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  placeholder="Product Images"
-                  onChange={(e) => {
-                    if (e.target.files) {
-                      const selectedFiles = Array.from(e.target.files); 
-                      setImages(selectedFiles);
-                    }
-                  }}
-                  name="images"
-                />
-              </div>
-              <br />
-              <div>
-                <Button variant="contained" fullWidth type="submit">
-                  Upload
-                </Button>
-              </div>
-            </div>
-          </Box>
-        </Paper>
-      </Container>
-    </div>
+    <Container maxWidth="sm">
+      <Paper elevation={3} sx={{ padding: 4, marginTop: 8 }}>
+        <Typography variant="h5" gutterBottom>
+          Upload Product
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+          <TextField
+            required
+            fullWidth
+            label="Product Name"
+            variant="standard"
+            name="name"
+            value={data.name}
+            onChange={handleChange}
+          />
+          <br /><br />
+          <TextField
+            required
+            fullWidth
+            label="Product Description"
+            variant="standard"
+            name="description"
+            value={data.description}
+            onChange={handleChange}
+          />
+          <br /><br />
+          <TextField
+            required
+            fullWidth
+            label="Product Price"
+            variant="standard"
+            name="price"
+            type="number"
+            value={data.price}
+            onChange={handleChange}
+          />
+          <br /><br />
+          <TextField
+            required
+            fullWidth
+            label="Product Quantity"
+            variant="standard"
+            name="quantity"
+            type="number"
+            value={data.quantity}
+            onChange={handleChange}
+          />
+          <br /><br />
+          <label className="image-label">Product Images <input
+            className="image-input"
+            type="file"
+            accept="image/*"
+            multiple 
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                setImages(Array.from(e.target.files));
+              }
+            }}
+          /></label>
+          
+          <br /><br />
+          {loading ? (
+            <CircularProgress />
+          ) : (
+            <Button variant="contained" fullWidth type="submit">
+              Upload
+            </Button>
+          )}
+          {error && (
+            <Typography color="error" mt={2}>
+              {error}
+            </Typography>
+          )}
+        </Box>
+      </Paper>
+    </Container>
   );
 };
 

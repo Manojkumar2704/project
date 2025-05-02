@@ -15,7 +15,6 @@ type FormData = {
   password: string;
 };
 
-// Styled Paper component for layout and scoped styling
 const LoginWrapper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   marginTop: theme.spacing(8),
@@ -39,6 +38,8 @@ const Login: React.FC = () => {
     password: '',
   });
 
+  const [error, setError] = useState<string>("");
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -48,26 +49,25 @@ const Login: React.FC = () => {
     try {
       const response = await axios.post('http://localhost:7000/user/login', formData);
       if (response.status === 201) {
-        alert('Logged in successfully');
         localStorage.setItem('token', response.data.token);
         setFormData({ email: '', password: '' });
         window.location.href = '/home';
       } else {
-        alert(response.data.message || 'Login failed');
+        setError(response.data.message || 'Login failed');
       }
     } catch (error: any) {
-      alert(error.response?.data?.message || 'An error occurred');
+      setError(error.response?.data?.message || 'Invalid credentials');
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(""); // Clear previous error before new attempt
     login();
   };
 
   return (
     <Container maxWidth="sm">
-      {/* ✅ Wrap form around the styled component */}
       <form onSubmit={handleSubmit} noValidate>
         <LoginWrapper>
           <Typography variant="h5" gutterBottom>
@@ -93,6 +93,12 @@ const Login: React.FC = () => {
             value={formData.password}
             onChange={handleChange}
           />
+
+          {error && (
+            <Typography color="error" data-testid="error-message">
+              {error}
+            </Typography>
+          )}
 
           <Button variant="contained" fullWidth type="submit">
             Login

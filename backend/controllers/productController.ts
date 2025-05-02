@@ -1,8 +1,11 @@
 import  {Request,Response}  from "express";
 import {sendMail} from "../mail/mail";
 import { UploadService,getOneProductService ,UploadManyService,AllProductsService,DeleteProductService,UpdateProductService,FilterProductService,SortByPrice} from "../services/productService";
-
-
+import dotenv from "dotenv"
+dotenv.config()
+import path from "path"
+import fs from "fs"
+import Products from "../model/productModel";
 
 const uploadService=new UploadService()
 // const uploadManyService=new UploadManyService()
@@ -35,7 +38,7 @@ class UploadController {
   async uploadMany(req: Request, res: Response) {
     const data = req.body;
     const images = req.files && Array.isArray(req.files)
-      ? req.files.map((item) => `http://localhost:7000/images/${item.filename}`)
+      ? req.files.map((item) => `${process.env.URL}/images/${item.filename}`)
       : [];
 
     const product = {
@@ -98,7 +101,7 @@ class UpdateProductController {
     const id=req.params.id;
     const files = req.files as Express.Multer.File[];
   
-    const images = files?.map(file => `http://localhost:7000/images/${file.filename}`);
+    const images = files?.map(file => `${process.env.URL}/images/${file.filename}`);
     try {
        await updateProduct.update(data,images, id);
       res.status(200).json({ success: true, message: "Data updated successfully" });
@@ -143,6 +146,60 @@ class SortByPriceController{
       res.status(404).json({success:false,message:"Server Error",error})    }
   }
 }
+
+export const deleteProductImage = async (
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
+  req: Request<{}, {}, {}, { imageUrl?: string; productId?: string }>,
+  res: Response
+) => {
+  const { imageUrl, productId } = req.query;
+
+  try {
+    const filename = (imageUrl as string).replace(`${process.env.URL}/images/`, '');
+    const imagePath = path.join(__dirname, '../uploads', filename); // adjust path
+
+    fs.unlink(imagePath, async (err) => {
+      if (err) {
+        return res.status(500).json({
+          success: false,
+          message: 'Failed to delete image from the file system',
+          error: err.message,
+        });
+      }
+
+      try {
+        const result = await Products.updateOne(
+          { _id: productId },
+          { $pull: { image: imageUrl } }
+        );
+
+        if (result.modifiedCount > 0) {
+          return res.status(200).json({
+            success: true,
+            message: 'Image deleted successfully from both file system and database',
+          });
+        } else {
+          res.status(404).json({
+            success: false,
+            message: 'Product not found or image not associated',
+          });
+        }
+      } catch (dbError) {
+        res.status(500).json({
+          success: false,
+          message: 'Failed to update database',
+          dbError,
+        });
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting image',
+      error,
+    });
+  }
+};
 
 
 

@@ -1,67 +1,49 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
-import "./Home.css"
-import {Navbar} from '../components/Navbar';
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import { fetchAllProducts, deleteProduct, filterProducts } from '../store/slice/productSlice';
 import { Link } from 'react-router-dom';
+import './Home.css';
+import { Navbar } from '../components/Navbar';
 import Footer from '../components/Footer';
 
 const Home = () => {
+  const dispatch = useAppDispatch();
+  const { products, loading, error } = useAppSelector((state) => state.products);
+  const [inputData, setInputData] = useState('');
 
-    interface Product {
-        _id: string;
-        name: string;
-        price: number;
-        description:string;
-        image:[string];
-        quantity:number;
-      }
+  useEffect(() => {
+    if (inputData.trim() === '') {
+      dispatch(fetchAllProducts());
+    } else {
+      const delayDebounce = setTimeout(() => {
+        dispatch(filterProducts(inputData));
+      }, 1000);
+      return () => clearTimeout(delayDebounce);
+    }
+  }, [dispatch, inputData]);
 
-    const [products,setProducts]=useState<Product[]>([])
-    let count=1;
-    const token = localStorage.getItem("token");
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+  const handleDelete = (id: string) => {
+    dispatch(deleteProduct(id));
+  };
 
-    const getProducts = async () => {
-        
-        try {
-            const result = await axios.get("http://localhost:7000/product/allproducts", {headers});
-                setProducts(result.data.result);
-            
-        } catch (error) {
-            alert("unauthorized")
-             window.location.href="/login"
-        }
-    };
-    
-    useEffect(()=>{
-        getProducts();
-        console.log(products);
-       
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[])
-    console.log(products);
-
-const deleteItem=async(id:string)=>{
-    await axios.delete("http://localhost:7000/product/deleteproduct/"+id,{headers})
-    getProducts()
-}
-
+  if (loading) return <h1>Loading...</h1>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
-    
     <>
-     <Navbar setproducts={setProducts}/>
-    
-    <div className='wrapper'>
-       
-      <h1>Product List</h1>
-      <Link to="/upload">
-      <button className='button add-button'>Add Product</button>
-      </Link>
-     
-      <table>
-        <thead>
-            <tr>
+      <Navbar inputData={inputData} setInputData={setInputData} />
+      <div className="wrapper">
+        <h1>Product List</h1>
+        <Link to="/upload">
+          <button className="button add-button">Add Product</button>
+        </Link>
+
+        {products.length < 1 ? (
+          <h2>No results found</h2>
+        ) : (
+          <table>
+            <thead>
+              <tr>
                 <th>No.</th>
                 <th>Name</th>
                 <th>Description</th>
@@ -70,33 +52,38 @@ const deleteItem=async(id:string)=>{
                 <th>Quantity</th>
                 <th>Edit</th>
                 <th>Delete</th>
-            </tr>
-        </thead>
-        <tbody>
-        {products.length<1 && <h1>No results found</h1>}
-            {products.map((item)=>(
-                <tr>
-                    <td>{count++}</td>
-                    <td>{item.name}</td>
-                    <td>{item.description}</td>
-                    <td>{item.price}</td>
-                    {/* <td className='img-container'>{item.image.map((item)=>(
-                        <img src={item} alt='img'/>
-                    ))}</td> */}
-                    <td className='img-container'><img src={item.image[0]} alt='img'/></td>
-                    <td>{item.quantity}</td>
-                    <td>
-                    <Link to={"/update/"+item._id}>
-                    <button className='button'>Edit</button></Link></td>
-                    <td><button className='button' onClick={()=>deleteItem(item._id)}>Delete</button></td>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((item, index) => (
+                <tr key={item._id}>
+                  <td>{index + 1}</td>
+                  <td>{item.name}</td>
+                  <td>{item.description}</td>
+                  <td>{item.price}</td>
+                  <td className="img-container">
+                    <img src={item.image[0]} alt="img" />
+                  </td>
+                  <td>{item.quantity}</td>
+                  <td>
+                    <Link to={`/update/${item._id}`}>
+                      <button className="button">Edit</button>
+                    </Link>
+                  </td>
+                  <td>
+                    <button className="button" onClick={() => handleDelete(item._id)}>
+                      Delete
+                    </button>
+                  </td>
                 </tr>
-            ))}
-        </tbody>
-      </table>
-    </div>
-    <Footer/>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      <Footer />
     </>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

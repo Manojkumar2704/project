@@ -22,6 +22,7 @@ const deleteProduct = new DeleteProductController();
 const filterproduct = new FilterProductController(); 
 const filterbyprice = new SortByPriceController();
 const getOneProduct=new getOneProductController()
+import { deleteProductImage } from "../controllers/productController";
 
 productRouter.post("/upload", upload.single("image"), authmiddleware, uploadProduct.upload);
 productRouter.post("/uploads", upload.array("images", 10), authmiddleware, (req, res) => uploadProducts.uploadMany(req, res));
@@ -31,5 +32,6 @@ productRouter.put("/updateproduct/:id",upload.array("images",8), authmiddleware,
 productRouter.post("/filter", authmiddleware, filterproduct.filter);
 productRouter.post("/sort", authmiddleware, filterbyprice.sort);
 productRouter.get("/getone/:id",authmiddleware,getOneProduct.getOne)
+productRouter.delete("/delete-image",authmiddleware,deleteProductImage)
 
 export default productRouter;

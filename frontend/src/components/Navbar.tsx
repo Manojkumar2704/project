@@ -1,25 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { styled, alpha } from '@mui/material/styles';
 import {
-  AppBar,
-  Box,
-  Toolbar,
-  IconButton,
-  Typography,
-  InputBase,
-  Badge,
-  MenuItem,
-  Menu,
+  AppBar, Box, Toolbar, IconButton, Typography,
+  InputBase, Badge, MenuItem, Menu,
 } from '@mui/material';
 import {
-  Menu as MenuIcon,
-  Search as SearchIcon,
-  AccountCircle,
-  Mail as MailIcon,
-  Notifications as NotificationsIcon,
+  Menu as MenuIcon, Search as SearchIcon, AccountCircle,
+  Mail as MailIcon, Notifications as NotificationsIcon,
   MoreVert as MoreIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -59,14 +48,15 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
   },
 }));
+
 type NavbarProps = {
-  setproducts: React.Dispatch<React.SetStateAction<any[]>>;
+  inputData: string;
+  setInputData: (value: string) => void;
 };
 
-export const Navbar: React.FC<NavbarProps> = ({ setproducts })=>{
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = useState<null | HTMLElement>(null);
-  const [inputData, setInputData] = useState<string>("");
+export const Navbar: React.FC<NavbarProps> = ({ inputData, setInputData }) => {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
@@ -83,22 +73,9 @@ export const Navbar: React.FC<NavbarProps> = ({ setproducts })=>{
     setAnchorEl(null);
     setMobileMoreAnchorEl(null);
   };
-  const token = localStorage.getItem("token");
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-
-  const filter = async () => {
-    console.log("Search input:", inputData);
-    const result=await axios.post("http://localhost:7000/product/filter",{filter:inputData},{headers})
-    console.log(result.data.result);
-    setproducts(result.data.result)
-  };
-  useEffect(()=>{
-    filter()
-  },[inputData])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputData(e.target.value);
-    // filter()
   };
 
   const menuId = 'primary-search-account-menu';
@@ -201,4 +178,4 @@ export const Navbar: React.FC<NavbarProps> = ({ setproducts })=>{
       {renderMenu}
     </Box>
   );
-}
+};
