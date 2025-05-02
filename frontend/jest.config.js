@@ -1,4 +1,6 @@
+/* eslint-disable no-dupe-keys */
 /** @type {import('jest').Config} */
+// eslint-disable-next-line no-undef
 module.exports = {
     setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   testEnvironment: 'jsdom',
