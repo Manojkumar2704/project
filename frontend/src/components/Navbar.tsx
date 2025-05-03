@@ -145,6 +145,7 @@ export const Navbar: React.FC<NavbarProps> = ({ inputData, setInputData }) => {
               <SearchIcon />
             </SearchIconWrapper>
             <StyledInputBase
+            data-testid="search-input"
               placeholder="Search…"
               inputProps={{ 'aria-label': 'search' }}
               value={inputData}

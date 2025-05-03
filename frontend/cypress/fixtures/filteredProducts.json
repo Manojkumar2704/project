@@ -1,0 +1,10 @@
+[
+    {
+      "_id": "1",
+      "name": "Test Product 1",
+      "description": "Test Description",
+      "price": 100,
+      "image": ["https://example.com/image1.jpg"],
+      "quantity": 10
+    }
+  ]

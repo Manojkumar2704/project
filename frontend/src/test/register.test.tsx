@@ -1,23 +1,65 @@
 import React from "react";
-import { render,screen} from "@testing-library/react";
-// import userEvent from "@testing-library/user-event";
-// import axios from "axios";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
 import Registration from "../pages/Registration";
+import { registerUser } from "../store/slice/authSlice";
 
-jest.mock("axios")
-// const mockedAxios=axios as jest.Mocked<typeof axios>
 
-describe ("register component",async()=>{
-    beforeEach(()=>{
-        localStorage.clear();
-        jest.clearAllMocks()
-    })
+jest.mock("../store/slice/authSlice", () => ({
+  registerUser: jest.fn(),
+}));
 
-    test("render register form",()=>{
-        render(<Registration></Registration>)
-        expect(screen.getByLabelText(/User Name/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/Email/i)).toBeInTheDocument()
-        expect(screen.getByLabelText(/Password/i)).toBeInTheDocument()
-})
-})
- 
+const fakeAuthReducer = () => ({
+  error: null,
+});
+
+const renderWithStore = () => {
+  const store = configureStore({
+    reducer: {
+      auth: fakeAuthReducer, 
+    },
+  });
+
+  return {
+    store,
+    ...render(
+      <Provider store={store}>
+        <Registration />
+      </Provider>
+    ),
+  };
+};
+
+describe("Registration", () => {
+  it("dispatches registerUser on valid form submit", async () => {
+
+    (registerUser as unknown as jest.Mock).mockReturnValue(() =>
+      Promise.resolve({
+        meta: { requestStatus: "fulfilled" },
+      })
+    );
+
+    const { store } = renderWithStore();
+
+    fireEvent.change(screen.getByLabelText(/user name/i), {
+      target: { value: "John Doe" },
+    });
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: "john@example.com" },
+    });
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: "password123" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /register/i }));
+
+    await waitFor(() => {
+      expect(registerUser).toHaveBeenCalledWith({
+        userName: "John Doe",
+        email: "john@example.com",
+        password: "password123",
+      });
+    });
+  });
+});
